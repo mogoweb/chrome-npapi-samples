@@ -1,41 +1,95 @@
-# Prerequisites
-*.d
+## Ignore Visual Studio temporary files, build results, and user-specific files
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# User-specific settings for VS Code or Rider
+.vscode/
+.idea/
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+
+# Generated files
+*.idb
+*.pdb
+*.ilk
 *.obj
-
-# Precompiled Headers
+*.pch
+*.pdb
+*.res
+*.tlog
+*.lastbuildstate
+*.ipch
+*.iobj
+*.ipdb
+*.sbr
+*.tlh
+*.tli
+*.tmp
+*.tmp_proj
+*.log
+*.vspscc
+*_i.c
+*_p.c
+*_h.h
+*.meta
+*.obj
+*.o
 *.gch
 *.pch
+*.asm
 
-# Linker files
-*.ilk
+# Visual Studio cache/options directory
+.vs/
 
-# Debugger Files
-*.pdb
+# Test results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
 
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
+# NuGet
+*.nupkg
+*.nuspec
+*.snupkg
+packages/
+*.nuget.props
+*.nuget.targets
 
-# Fortran module files
-*.mod
-*.smod
+# Others
+*.dbmdl
+*.bak
+*.backup
+*.Cache
+*.db
+*.opendb
+*.VC.db
+*.VC.opendb
+*.aps
+*.ncb
+*.sdf
+*.cachefile
 
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
+# Profiling
+*.psess
+*.vsp
+*.vspx
+*.sap
 
-# Executables
-*.exe
-*.out
-*.app
+# Temporary files
+~$*
 
-# debug information files
-*.dwo

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>NPAPI Demo</title>
+    <script type="text/javascript">
+        function callSayHello() {
+            var plugin = document.getElementById('npapiDemo');
+            if (plugin && typeof plugin.sayHello === "function") {
+                plugin.sayHello();
+            } else {
+                if (!plugin)
+                    alert("插件未加载");
+                else
+                    alert("插件不支持 sayHello 方法");
+            }
+        }
+    </script>
+</head>
+<body>
+    <embed id="npapiDemo" type="application/x-myplugin" width="400" height="200"></embed>
+    <br>
+    <button onclick="callSayHello()">显示 Hello</button>
+</body>
+</html>

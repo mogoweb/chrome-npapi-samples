@@ -1,0 +1,6 @@
+LIBRARY "NPAPIDemo"
+EXPORTS
+    NP_GetEntryPoints
+    NP_Initialize
+    NP_Shutdown
+    NP_GetMIMEDescription

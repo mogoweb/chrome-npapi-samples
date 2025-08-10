@@ -1,0 +1,30 @@
+Windows Registry Editor Version 5.00
+
+; ========================
+; 64 位系统下的 64 位浏览器插件注册
+; 32 位系统下的插件注册
+; ========================
+[HKEY_LOCAL_MACHINE\SOFTWARE\MozillaPlugins\deepin/MyPlugin,version=1.0.0]
+"Description"="My NPAPI Demo Plugin"
+"Path"="C:\\supcom\\saturn\\NPAPIDemo.dll"
+"ProductName"="npmyplugin"
+"Vendor"="Me"
+"Version"="1.0.0"
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\MozillaPlugins\deepin/MyPlugin,version=1.0.0\MimeTypes\application/x-myplugin]
+"Description"="My plugin mime"
+"FileExtents"=".npd"
+
+; ========================
+; 64 位系统下的 32 位浏览器插件注册（WOW6432Node）
+; ========================
+[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\MozillaPlugins\deepin/MyPlugin,version=1.0.0]
+"Description"="My NPAPI Demo Plugin"
+"Path"="C:\\supcom\\saturn\\NPAPIDemo.dll"
+"ProductName"="npmyplugin"
+"Vendor"="Me"
+"Version"="1.0.0"
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\MozillaPlugins\deepin/MyPlugin,version=1.0.0\MimeTypes\application/x-myplugin]
+"Description"="My plugin mime"
+"FileExtents"=".npd"
