@@ -24,6 +24,7 @@
     <ProjectGuid>{a08ac98b-1c56-421d-9ea6-8e3335d80d17}</ProjectGuid>
     <RootNamespace>NPAPIDemo</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>npdemo</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -85,7 +86,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <ModuleDefinitionFile>NPAPIDemo.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>npdemo.def</ModuleDefinitionFile>
     </Link>
     <PostBuildEvent>
       <Command>if not exist "C:\supcom\saturn" mkdir "C:\supcom\saturn"
@@ -109,7 +110,7 @@ xcopy "$(TargetPath)" "C:\supcom\saturn\" /Y /I</Command>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <ModuleDefinitionFile>NPAPIDemo.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>npdemo.def</ModuleDefinitionFile>
     </Link>
     <PostBuildEvent>
       <Command>if not exist "C:\supcom\saturn" mkdir "C:\supcom\saturn"
@@ -167,11 +168,11 @@ xcopy "$(TargetPath)" "C:\supcom\saturn\" /Y /I</Command>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="NPAPIDemo.def" />
-    <None Include="npapi_demo.reg" />
+    <None Include="npdemo.def" />
+    <None Include="npdemo.reg" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="NPAPIDemo.rc" />
+    <ResourceCompile Include="npdemo.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

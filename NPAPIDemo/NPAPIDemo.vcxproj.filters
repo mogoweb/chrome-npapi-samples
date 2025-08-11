@@ -46,15 +46,15 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="NPAPIDemo.def">
+    <None Include="npdemo.def">
       <Filter>资源文件</Filter>
     </None>
-    <None Include="npapi_demo.reg">
+    <None Include="npdemo.reg">
       <Filter>资源文件</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="NPAPIDemo.rc">
+    <ResourceCompile Include="npdemo.rc">
       <Filter>资源文件</Filter>
     </ResourceCompile>
   </ItemGroup>

@@ -6,7 +6,7 @@ Windows Registry Editor Version 5.00
 ; ========================
 [HKEY_LOCAL_MACHINE\SOFTWARE\MozillaPlugins\deepin/MyPlugin,version=1.0.0]
 "Description"="My NPAPI Demo Plugin"
-"Path"="C:\\supcom\\saturn\\NPAPIDemo.dll"
+"Path"="C:\\supcom\\saturn\\npdemo.dll"
 "ProductName"="npmyplugin"
 "Vendor"="Me"
 "Version"="1.0.0"
@@ -20,7 +20,7 @@ Windows Registry Editor Version 5.00
 ; ========================
 [HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\MozillaPlugins\deepin/MyPlugin,version=1.0.0]
 "Description"="My NPAPI Demo Plugin"
-"Path"="C:\\supcom\\saturn\\NPAPIDemo.dll"
+"Path"="C:\\supcom\\saturn\\npdemo.dll"
 "ProductName"="npmyplugin"
 "Vendor"="Me"
 "Version"="1.0.0"
