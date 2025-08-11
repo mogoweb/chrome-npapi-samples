@@ -11,7 +11,7 @@ NPNetscapeFuncs* g_browserFuncs = nullptr;
 
 // 插件对外提供的 MIME 类型描述
 // 语法: "MIME类型:文件扩展名:插件描述"
-static const char* kMimeDescription = "application/x-npapi-demo:.npd:NPAPI Demo Plugin";
+static const char* kMimeDescription = "application/x-npapi-demo:ocx:ActiveX (*.ocx)|demo plugin|A simple demo plugin|1.0.0.0";
 
 // 获取插件入口点
 extern "C" NPError OSCALL NP_GetEntryPoints(NPPluginFuncs* pluginFuncs) {

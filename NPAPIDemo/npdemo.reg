@@ -11,9 +11,9 @@ Windows Registry Editor Version 5.00
 "Vendor"="Me"
 "Version"="1.0.0"
 
-[HKEY_LOCAL_MACHINE\SOFTWARE\MozillaPlugins\deepin/MyPlugin,version=1.0.0\MimeTypes\application/x-myplugin]
-"Description"="My plugin mime"
-"FileExtents"=".npd"
+[HKEY_LOCAL_MACHINE\SOFTWARE\MozillaPlugins\deepin/MyPlugin,version=1.0.0\MimeTypes\application/x-npapi-demo:ocx:ActiveX]
+"Description"="demo plugin"
+"FileExtents"=".ocx"
 
 ; ========================
 ; 64 位系统下的 32 位浏览器插件注册（WOW6432Node）
@@ -25,6 +25,6 @@ Windows Registry Editor Version 5.00
 "Vendor"="Me"
 "Version"="1.0.0"
 
-[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\MozillaPlugins\deepin/MyPlugin,version=1.0.0\MimeTypes\application/x-myplugin]
-"Description"="My plugin mime"
-"FileExtents"=".npd"
+[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\MozillaPlugins\deepin/MyPlugin,version=1.0.0\MimeTypes\application/x-npapi-demo:ocx:ActiveX]
+"Description"="demo plugin"
+"FileExtents"=".ocx"

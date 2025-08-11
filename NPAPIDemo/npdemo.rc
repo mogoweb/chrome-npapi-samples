@@ -75,7 +75,7 @@ BEGIN
             VALUE "OriginalFilename", "npdemo.dll"
             VALUE "ProductName", "NPAPI Demo"
             VALUE "ProductVersion", "1.0.0.0"
-	        VALUE "MIMEType", "application/x-myplugin"
+            VALUE "MIMEType", "application/x-npapi-demo:ocx:ActiveX"
         END
     END
     BLOCK "VarFileInfo"
