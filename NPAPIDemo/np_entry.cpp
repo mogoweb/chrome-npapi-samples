@@ -4,8 +4,7 @@
 #include "npapi.h"
 #include "npfunctions.h"
 #include "npruntime.h"
-
-#include <fstream>
+#include "log.h"
 
 // 保存浏览器的函数表指针
 NPNetscapeFuncs* g_browserFuncs = nullptr;
@@ -35,12 +34,10 @@ extern "C" NPError OSCALL NP_GetEntryPoints(NPPluginFuncs* pluginFuncs) {
     return NPERR_NO_ERROR;
 }
 
-extern void WriteDebugLog(const char* message);
-
 // 插件初始化
 extern "C"  NPError OSCALL NP_Initialize(NPNetscapeFuncs* browserFuncs) {
     // 在 DllMain 的入口处调用
-    WriteDebugLog("NPAPIDemo: DllMain called.\n");
+    WriteDebugLog("NPAPIDemo: NP_Initialize called.\n");
 
     if (!browserFuncs) return NPERR_INVALID_FUNCTABLE_ERROR;
     g_browserFuncs = browserFuncs;

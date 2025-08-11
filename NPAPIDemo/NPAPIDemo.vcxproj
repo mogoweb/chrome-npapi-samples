@@ -78,8 +78,8 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>D:\work\npapi-demo\npapi-sdk\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\npapi-headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -87,6 +87,10 @@
       <EnableUAC>false</EnableUAC>
       <ModuleDefinitionFile>NPAPIDemo.def</ModuleDefinitionFile>
     </Link>
+    <PostBuildEvent>
+      <Command>if not exist "C:\supcom\saturn" mkdir "C:\supcom\saturn"
+xcopy "$(TargetPath)" "C:\supcom\saturn\" /Y /I</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -146,11 +150,13 @@ xcopy "$(TargetPath)" "C:\supcom\saturn\" /Y /I</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="framework.h" />
+    <ClInclude Include="log.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="log.cpp" />
     <ClCompile Include="npp.cpp" />
     <ClCompile Include="np_entry.cpp" />
     <ClCompile Include="pch.cpp">

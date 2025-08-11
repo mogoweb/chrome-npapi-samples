@@ -1,25 +1,25 @@
 ﻿// dllmain.cpp : 定义 DLL 应用程序的入口点。
 #include "pch.h"
-
-// 在 DllMain 外部定义一个辅助函数，避免在 DllMain 中做字符串拼接
-void WriteDebugLog(const char* message) {
-    OutputDebugStringA(message);
-}
+#include "log.h"
 
 BOOL APIENTRY DllMain( HMODULE hModule,
                        DWORD  ul_reason_for_call,
                        LPVOID lpReserved
                      )
 {
-    // 在 DllMain 的入口处调用
-    WriteDebugLog("NPAPIDemo: DllMain called.\n");
-
     switch (ul_reason_for_call)
     {
     case DLL_PROCESS_ATTACH:
+        WriteDebugLog("NPAPIDemo: DLL_PROCESS_ATTACH called.\n");
+        break;
     case DLL_THREAD_ATTACH:
+        WriteDebugLog("NPAPIDemo: DLL_THREAD_ATTACH called.\n");
+        break;
     case DLL_THREAD_DETACH:
+        WriteDebugLog("NPAPIDemo: DLL_THREAD_DETACH called.\n");
+        break;
     case DLL_PROCESS_DETACH:
+        WriteDebugLog("NPAPIDemo: DLL_PROCESS_DETACH called.\n");
         break;
     }
     return TRUE;
