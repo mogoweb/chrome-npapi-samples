@@ -47,6 +47,7 @@ static void Hello_Invalidate(NPObject* obj) {
 static bool Hello_HasMethod(NPObject* obj, NPIdentifier name);
 static bool Hello_Invoke(NPObject* obj, NPIdentifier name,
     const NPVariant* args, uint32_t argCount, NPVariant* result);
+static bool Hello_HasProperty(NPObject* obj, NPIdentifier name);
 
 NPClass HelloNPClass = {
     NP_CLASS_STRUCT_VERSION,
@@ -56,7 +57,7 @@ NPClass HelloNPClass = {
     Hello_HasMethod,
     Hello_Invoke,
     nullptr,
-    nullptr,
+    Hello_HasProperty,
     nullptr,
     nullptr,
     nullptr
@@ -121,6 +122,15 @@ static bool Hello_HasMethod(NPObject* obj, NPIdentifier name) {
     NPUTF8* methodName = g_browserFuncs->utf8fromidentifier(name);
     bool res = (methodName && std::strcmp((const char*)methodName, "sayHello") == 0);
     if (methodName) g_browserFuncs->memfree(methodName);
+    return res;
+}
+
+static bool Hello_HasProperty(NPObject* obj, NPIdentifier name) {
+    if (!g_browserFuncs) return false;
+    NPUTF8* propertyName = g_browserFuncs->utf8fromidentifier(name);
+    bool res = false;
+
+    if (propertyName) g_browserFuncs->memfree(propertyName);
     return res;
 }
 
