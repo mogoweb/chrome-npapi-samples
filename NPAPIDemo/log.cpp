@@ -8,3 +8,7 @@ void WriteDebugLog(const char* message) {
     oss << "[NPAPIDemo] " << message;
     OutputDebugStringA(oss.str().c_str());
 }
+
+void ShowMessage(const char* message) {
+    MessageBoxA(NULL, message, "NPAPI Plugin Log", MB_OK);
+}
