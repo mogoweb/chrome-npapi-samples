@@ -8,13 +8,19 @@
 #include <cstring>
 #include <windows.h>
 
+#include "log.h"
+
 extern NPNetscapeFuncs* g_browserFuncs;
 
+// 子窗口的窗口类名
+const wchar_t CHILD_WINDOW_CLASS_NAME[] = L"NPAPI_ChildWindowClass";
+
 struct PluginInstanceData {
-    int dummy;
     bool showHello;
     NPWindow* window;
-    PluginInstanceData() : dummy(0), showHello(false), window(nullptr) {}
+    HWND m_childHwnd; // 用于保存子窗口句柄
+
+    PluginInstanceData() : showHello(false), window(nullptr), m_childHwnd(nullptr) {}
 };
 
 struct HelloNPObject : NPObject {
@@ -24,6 +30,7 @@ struct HelloNPObject : NPObject {
 
 // Forward
 static void DrawPlugin(PluginInstanceData* pdata);
+static LRESULT CALLBACK ChildWindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 // ---------- NPObject lifecycle ----------
 static NPObject* Hello_Allocate(NPP npp, NPClass* aClass) {
@@ -36,7 +43,6 @@ static NPObject* Hello_Allocate(NPP npp, NPClass* aClass) {
 
 static void Hello_Deallocate(NPObject* obj) {
     if (!obj || !g_browserFuncs) return;
-    // 如果将来 HelloNPObject 持有资源，在这里释放
     g_browserFuncs->memfree(obj);
 }
 
@@ -65,13 +71,43 @@ NPClass HelloNPClass = {
 
 // ---------- Implementation ----------
 
+// 子窗口的窗口过程函数
+LRESULT CALLBACK ChildWindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+    switch (message) {
+    case WM_PAINT:
+    {
+        PAINTSTRUCT ps;
+        HDC hdc = BeginPaint(hWnd, &ps);
+        if (hdc) {
+            RECT rect;
+            GetClientRect(hWnd, &rect);
+
+            // 1. 填充白色背景
+            HBRUSH whiteBrush = CreateSolidBrush(RGB(255, 255, 255));
+            FillRect(hdc, &rect, whiteBrush);
+            DeleteObject(whiteBrush);
+
+            // 2. 绘制 "Hello Childwindow" 文字
+            SetBkMode(hdc, TRANSPARENT);
+            SetTextColor(hdc, RGB(0, 0, 0)); // 黑色文字
+            DrawTextA(hdc, "Hello Childwindow", -1, &rect,
+                DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOPREFIX);
+
+            EndPaint(hWnd, &ps);
+        }
+        return 0;
+    }
+    }
+    return DefWindowProc(hWnd, message, wParam, lParam);
+}
+
+
+// 主插件窗口绘制函数（只绘制背景）
 static void DrawPlugin(PluginInstanceData* pdata) {
     if (!pdata || !pdata->window) return;
-    // window->window 在 Win32 下是 HWND
     HWND hwnd = (HWND)pdata->window->window;
     if (!hwnd) return;
 
-    // 直接获取 DC 并绘制（无需依赖 WM_PAINT）
     HDC hdc = GetDC(hwnd);
     if (!hdc) return;
 
@@ -81,18 +117,10 @@ static void DrawPlugin(PluginInstanceData* pdata) {
         return;
     }
 
-    // 填充蓝色背景（Windows 风格蓝色）
+    // 填充蓝色背景
     HBRUSH brush = CreateSolidBrush(RGB(0, 120, 215));
     FillRect(hdc, &rect, brush);
     DeleteObject(brush);
-
-    // 如果需要显示文本则绘制
-    if (pdata->showHello) {
-        SetBkMode(hdc, TRANSPARENT);
-        // 文字居中
-        DrawTextA(hdc, "Hello, NPAPI Plugin!", -1, &rect,
-            DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOPREFIX);
-    }
 
     ReleaseDC(hwnd, hdc);
 }
@@ -107,8 +135,14 @@ static bool Hello_Invoke(NPObject* obj, NPIdentifier name,
         HelloNPObject* helloObj = static_cast<HelloNPObject*>(obj);
         if (helloObj && helloObj->pdata) {
             helloObj->pdata->showHello = true;
-            // 立即绘制，不依赖 WM_PAINT 或 invalidaterect
+            // 更新主窗口
             DrawPlugin(helloObj->pdata);
+
+            // 让子窗口也重绘
+            if (helloObj->pdata->m_childHwnd) {
+                InvalidateRect(helloObj->pdata->m_childHwnd, NULL, TRUE);
+                UpdateWindow(helloObj->pdata->m_childHwnd);
+            }
         }
         VOID_TO_NPVARIANT(*result);
         handled = true;
@@ -126,12 +160,7 @@ static bool Hello_HasMethod(NPObject* obj, NPIdentifier name) {
 }
 
 static bool Hello_HasProperty(NPObject* obj, NPIdentifier name) {
-    if (!g_browserFuncs) return false;
-    NPUTF8* propertyName = g_browserFuncs->utf8fromidentifier(name);
-    bool res = false;
-
-    if (propertyName) g_browserFuncs->memfree(propertyName);
-    return res;
+    return false;
 }
 
 // ---------------- NPP 回调 ----------------
@@ -139,12 +168,29 @@ static bool Hello_HasProperty(NPObject* obj, NPIdentifier name) {
 NPError NPP_New(NPMIMEType pluginType, NPP instance, uint16_t mode,
     int16_t argc, char* argn[], char* argv[], NPSavedData* saved) {
     if (!instance) return NPERR_GENERIC_ERROR;
-    PluginInstanceData* d = (PluginInstanceData*)std::calloc(1, sizeof(PluginInstanceData));
+
+    // 为子窗口注册窗口类
+    WNDCLASSEXW wcex = { 0 };
+    wcex.cbSize = sizeof(WNDCLASSEXW);
+    wcex.style = CS_HREDRAW | CS_VREDRAW;
+    wcex.lpfnWndProc = ChildWindowProc;
+    wcex.cbClsExtra = 0;
+    wcex.cbWndExtra = 0;
+    wcex.hInstance = GetModuleHandle(NULL); // 获取当前模块句柄
+    wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
+    wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+    wcex.lpszMenuName = NULL;
+    wcex.lpszClassName = CHILD_WINDOW_CLASS_NAME;
+    wcex.hIcon = NULL;
+    wcex.hIconSm = NULL;
+
+    // 只需要注册一次
+    if (!GetClassInfoExW(wcex.hInstance, CHILD_WINDOW_CLASS_NAME, &wcex)) {
+         RegisterClassExW(&wcex);
+    }
+
+    PluginInstanceData* d = new PluginInstanceData();
     if (!d) return NPERR_OUT_OF_MEMORY_ERROR;
-    // 虽然 calloc 已经归零，但我们显式设置，保证明确初始值
-    d->dummy = 0;
-    d->showHello = false;
-    d->window = nullptr;
     instance->pdata = d;
     return NPERR_NO_ERROR;
 }
@@ -153,22 +199,51 @@ NPError NPP_Destroy(NPP instance, NPSavedData** save) {
     if (!instance) return NPERR_GENERIC_ERROR;
     if (instance->pdata) {
         PluginInstanceData* pdata = static_cast<PluginInstanceData*>(instance->pdata);
-        std::free(pdata);
+
+        // 销毁子窗口
+        if (pdata->m_childHwnd) {
+            DestroyWindow(pdata->m_childHwnd);
+            pdata->m_childHwnd = nullptr;
+        }
+
+        delete pdata;
         instance->pdata = nullptr;
     }
     return NPERR_NO_ERROR;
 }
 
-// NPP_SetWindow: 保存窗口并立即绘制蓝底（插件创建时会看到蓝色背景）
 NPError NPP_SetWindow(NPP instance, NPWindow* window) {
     if (!instance) return NPERR_GENERIC_ERROR;
     PluginInstanceData* pdata = static_cast<PluginInstanceData*>(instance->pdata);
     if (!pdata) return NPERR_GENERIC_ERROR;
 
     pdata->window = window;
+    HWND parentHwnd = (HWND)window->window;
 
-    // 立即绘制背景（不依赖 WM_PAINT）
-    DrawPlugin(pdata);
+    if (parentHwnd) {
+        if (pdata->m_childHwnd == nullptr) {
+            // 创建子窗口
+            pdata->m_childHwnd = CreateWindowExW(
+                0,                              // Optional window styles.
+                CHILD_WINDOW_CLASS_NAME,        // Window class
+                L"My Child Window",             // Window text
+                WS_CHILD | WS_VISIBLE,          // Window style
+
+                // Position and size (e.g., inset by 10 pixels)
+                10, 10, window->width - 20, window->height - 20,
+
+                parentHwnd,                     // Parent window
+                NULL,                           // Menu
+                GetModuleHandle(NULL),          // Instance handle
+                NULL                            // Additional application data
+            );
+        } else {
+            // 如果窗口已存在，仅调整大小和位置
+            MoveWindow(pdata->m_childHwnd, 10, 10, window->width - 20, window->height - 20, TRUE);
+        }
+
+        InvalidateRect(parentHwnd, NULL, TRUE);
+    }
 
     return NPERR_NO_ERROR;
 }
@@ -190,16 +265,15 @@ int32_t NPP_Write(NPP instance, NPStream* stream, int32_t offset, int32_t len, v
 }
 
 void NPP_StreamAsFile(NPP instance, NPStream* stream, const char* fname) {
-    (void)instance; (void)stream; (void)fname;
 }
 
 void NPP_URLNotify(NPP instance, const char* url, NPReason reason, void* notifyData) {
-    (void)instance; (void)url; (void)reason; (void)notifyData;
 }
 
-// NPP_HandleEvent: 仍然实现以兼容某些浏览器，如果收到 WM_PAINT 也绘制
 int16_t NPP_HandleEvent(NPP instance, void* event) {
-    if (!instance || !event) return 0;
+    // 事件现在主要由子窗口自己的 WindowProc 处理，
+    // 但我们保留父窗口的 WM_PAINT 处理以重绘蓝色背景。
+    if (!instance) return 0;
     PluginInstanceData* pdata = static_cast<PluginInstanceData*>(instance->pdata);
     if (!pdata || !pdata->window) return 0;
 
@@ -207,9 +281,8 @@ int16_t NPP_HandleEvent(NPP instance, void* event) {
     if (!npEvent) return 0;
 
     if (npEvent->event == WM_PAINT) {
-        // 在 WM_PAINT 中也绘制（与 SetWindow/Invoke 中的绘制保持一致）
-        PAINTSTRUCT ps;
         HWND hwnd = (HWND)pdata->window->window;
+        PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hwnd, &ps);
         if (hdc) {
             RECT rect;
@@ -218,19 +291,13 @@ int16_t NPP_HandleEvent(NPP instance, void* event) {
             FillRect(hdc, &rect, brush);
             DeleteObject(brush);
 
-            if (pdata->showHello) {
-                SetBkMode(hdc, TRANSPARENT);
-                DrawTextA(hdc, "Hello, NPAPI Plugin!", -1, &rect,
-                    DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOPREFIX);
-            }
             EndPaint(hwnd, &ps);
             return 1;
         }
     }
-    return 0;
+    return 0; // 其他事件我们不处理
 }
 
-// NPP_GetValue 返回 NPObject
 NPError NPP_GetValue(NPP instance, NPPVariable variable, void* value) {
     if (variable == NPPVpluginScriptableNPObject) {
         if (!instance || !g_browserFuncs) return NPERR_GENERIC_ERROR;
@@ -247,6 +314,5 @@ NPError NPP_GetValue(NPP instance, NPPVariable variable, void* value) {
 }
 
 NPError NPP_SetValue(NPP instance, NPNVariable variable, void* value) {
-    (void)instance; (void)variable; (void)value;
     return NPERR_GENERIC_ERROR;
 }

@@ -4,12 +4,33 @@
     <meta charset="utf-8">
     <title>NPAPI Demo</title>
     <script type="text/javascript">
+        function plugin()
+	    {
+		    return document.getElementById('plugin');
+	    }
+
+        function loadPlugin() {
+            // 检查插件是否已经存在，防止重复加载
+            if (plugin()) {
+                alert('插件已经加载！');
+                return;
+            }
+
+            var objString = "";
+	        objString += "<object id='plugin' type='application/x-npapi-demo' width='100%' height='80%'>"
+	        objString += "<p>插件加载失败，请检查浏览器是否支持 NPAPI。</p>"
+
+	        objString += "</object>";
+
+		    document.getElementById("container").innerHTML = objString;
+        }
+
         function callSayHello() {
-            var plugin = document.getElementById('npapiDemo');
-            if (plugin && typeof plugin.sayHello === "function") {
-                plugin.sayHello();
+            var p = plugin();
+            if (p && typeof p.sayHello === "function") {
+                p.sayHello();
             } else {
-                if (!plugin)
+                if (!p)
                     alert("插件未加载");
                 else
                     alert("插件不支持 sayHello 方法");
@@ -17,12 +38,11 @@
         }
     </script>
 </head>
-<body>
-    <object id="npapiDemo" type="application/x-npapi-demo" width="400" height="200">
-        <!-- 可选：提供一个提示，当插件无法加载时显示 -->
-        <p>插件加载失败，请检查浏览器是否支持 NPAPI。</p>
-    </object>
+<body onload="">
+    <div id="container" width="800" height="450" style="border-style:Double;border-width:2pt; border-color:red;" >
+    </div>
     <br>
+    <button onclick="loadPlugin()">加载插件</button>
     <button onclick="callSayHello()">显示 Hello</button>
 </body>
 </html>
